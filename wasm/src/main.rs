@@ -31,14 +31,14 @@ fn main() {
 
 struct State {
     acceleration: i32,
-    speed: i32,
+    speed: u32,
     position: i32
 }
 fn update(current_state: State, throttle: i32) -> State{
     State {
         acceleration: current_state.acceleration + throttle,
-        speed: current_state.speed + throttle + current_state.acceleration,
-        position: current_state.position + current_state.speed
+        speed: u32::try_from((i32::try_from(current_state.speed).unwrap() + throttle + current_state.acceleration).clamp(0, i32::MAX)).unwrap(),
+        position: current_state.position + i32::try_from(current_state.speed).unwrap()
     }
 }
 
@@ -148,5 +148,17 @@ mod tests {
 
         let new_state = update(current_state, 1);
         assert_eq!(2, new_state.speed);
+    }
+
+    #[test]
+    fn car_cant_have_a_negative_speed () {
+        let current_state = State {
+            acceleration: 0,
+            speed: 0,
+            position: 0
+        };
+
+        let new_state = update(current_state, -1);
+        assert_eq!(0, new_state.speed);
     }
 }
